@@ -57,27 +57,22 @@ class ScintillatorGUI:
             self.status_label.config(text="File selected successfully", fg="green")
 
             try:
-                start = float(time.time())
                 # Create analyzer instance
                 self.analyzer = ScintillatorAnalyzer()
                 peaks = self.analyzer.process_video_with_multiple_peaks(file_path)
 
-                # Assign arbitrary voltage (nth flash = nV)
+                # Update results with correct key names
+                self.results = []
                 for i, peak in enumerate(peaks):
                     self.results.append({
                         'video_path': Path(file_path).name,
                         'voltage': i + 1,  # nth flash = nV
-                        'peak_intensity': peak['intensity'],
-                        'peak_timestamp': peak['timestamp']
+                        'intensity': peak['intensity'],  # Use correct key
+                        'timestamp': peak['timestamp']
                     })
 
                 # Update plot
                 self.update_plot()
-
-                end = float(time.time())
-                self.timing_label.config(
-                    text=f"{str(round(end-start, 2))} seconds taken"
-                )
 
                 # Save to CSV
                 self.save_to_csv()
@@ -94,22 +89,46 @@ class ScintillatorGUI:
 
     def update_plot(self):
         self.ax.clear()
-        if self.results:
-            voltages = [r['voltage'] for r in self.results]
-            intensities = [r['peak_intensity'] for r in self.results]
+        if hasattr(self.analyzer, 'all_frames'):
+            # Plot all frames
+            self.ax.plot(
+                self.analyzer.all_frames['timestamps'],
+                self.analyzer.all_frames['intensities'],
+                color='blue',
+                alpha=0.3,
+                label='Frame Brightness'
+            )
 
-            self.ax.plot(voltages, intensities, marker='o', linestyle='-', linewidth=2)
-            self.ax.set_xlabel('Flash Number (V)')
-            self.ax.set_ylabel('Peak Intensity')
-            self.ax.set_title('Scintillator Peak Intensities vs Flash Number')
+            # Plot peaks
+            if self.results:
+                timestamps = [r['timestamp'] for r in self.results]
+                intensities = [r['intensity'] for r in self.results]
+                self.ax.plot(
+                    timestamps,
+                    intensities,
+                    marker='o',
+                    linestyle='-',
+                    linewidth=2,
+                    color='red',
+                    label='Peaks'
+                )
+
+            # Adjust ambient brightness to zero
+            min_intensity = min(self.analyzer.all_frames['intensities'])
+            self.ax.set_ylim(min_intensity - 1, max(self.analyzer.all_frames['intensities']) + 1)
+
+            self.ax.set_xlabel('Time (seconds)')
+            self.ax.set_ylabel('Brightness')
+            self.ax.set_title('Scintillator Brightness vs Time')
             self.ax.grid(True)
+            self.ax.legend()
 
             self.canvas.draw()
 
     def save_to_csv(self):
         if self.results:
             df = pd.DataFrame(self.results)
-            df.to_csv('analysis_results.csv', index=False)
+            df.to_csv('analysis_results.csv', index=False, mode='a')
 
     def run(self):
         self.root.mainloop()
