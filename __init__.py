@@ -1,1 +1,2 @@
-import scintillatorAnalyze
+from scintillatorAnalyze import ScintillatorAnalyzer
+from scintillatorGUI import ScintillatorGUI

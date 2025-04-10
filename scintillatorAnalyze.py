@@ -1,3 +1,11 @@
+"""
+Class ScintillatorAnalyzer for video frame sequential processing and conversion of
+greyscale brightness into a line graph
+
+Does not take parameters, global scope
+
+Single threaded processing
+"""
 # ScintillatorAnalyzer.py
 import numpy as np
 import cv2
@@ -9,7 +17,6 @@ class ScintillatorAnalyzer:
     def __init__(self):
         self.all_frames = []  # to plot every point
 
-    # In ScintillatorAnalyzer.py
     def process_video_with_multiple_peaks(self, video_path):
         cap = cv2.VideoCapture(str(video_path))
         fps = cap.get(cv2.CAP_PROP_FPS)
@@ -18,8 +25,9 @@ class ScintillatorAnalyzer:
         intensities = []
         timestamps = []
 
-        while True:
+        for i in range(1000):
             ret, frame = cap.read()
+            print(ret, frame)
             if not ret:
                 break
 

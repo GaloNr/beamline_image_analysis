@@ -1,3 +1,8 @@
+"""
+Class ScintillatorGUI for initialisation of UIX for easier upload and future debugging
+
+Does not take parameters, global scope, is not a child of scintillatorAnalyze class
+"""
 # ScintillatorGUI.py
 import time
 import tkinter as tk
