@@ -130,6 +130,8 @@ class ScintillatorGUI:
 
             self.canvas.draw()
 
+            self.fig.savefig("figure")
+
     def save_to_csv(self):
         if self.results:
             df = pd.DataFrame(self.results)

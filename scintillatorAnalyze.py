@@ -25,7 +25,7 @@ class ScintillatorAnalyzer:
         intensities = []
         timestamps = []
 
-        for i in range(1000):
+        while True:
             ret, frame = cap.read()
             print(ret, frame)
             if not ret:
@@ -42,7 +42,7 @@ class ScintillatorAnalyzer:
         cap.release()
 
         # Find peaks in intensity values
-        peaks, _ = find_peaks(intensities, height=np.mean(intensities) + np.std(intensities))
+        peaks, _ = find_peaks(intensities, height=np.mean(intensities) + np.std(intensities) - 6, prominence=2)
 
         # Create peak data structure
         peak_data = []
